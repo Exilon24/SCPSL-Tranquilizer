@@ -10,9 +10,6 @@
     <Reference Include="0Harmony">
       <HintPath>..\..\..\..\Downloads\ExiledAssembly\EXILED\Plugins\dependencies\0Harmony.dll</HintPath>
     </Reference>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\..\..\Downloads\ExiledAssembly\Assembly-CSharp.dll</HintPath>
-    </Reference>
     <Reference Include="Exiled.API">
       <HintPath>..\..\..\..\Downloads\ExiledAssembly\EXILED\Plugins\dependencies\Exiled.API.dll</HintPath>
     </Reference>
