@@ -10,9 +10,9 @@ namespace SCPSLTranquilizer
     using Mirror;
     using PlayerStatsSystem;
     using System.Collections.Generic;
-    using System.Linq;
     using UnityEngine;
     using Item = Exiled.API.Features.Items.Item;
+    using Player = Exiled.Events.Handlers.Player;
 
     public class Plugin : Plugin<Config>
     {
@@ -20,8 +20,6 @@ namespace SCPSLTranquilizer
         public override string Name => "SCP:SL Tranquilizer";
         public override string Author => "(S)Exilon";
         public override System.Version Version => new System.Version(1, 3, 2);
-
-        public bool canEnrage = true;
 
         public List<string> disabledPlayers = new List<string>();
 
@@ -32,20 +30,35 @@ namespace SCPSLTranquilizer
 
         public override void OnEnabled()
         {
-            Exiled.Events.Handlers.Player.Shot += Player_Shot;
-            Exiled.Events.Handlers.Player.ItemAdded += Player_ItemAdded;
-            Exiled.Events.Handlers.Player.UsingItem += Player_UsingItem;
-            Exiled.Events.Handlers.Player.InteractingDoor += Player_InteractingDoor;
-            Exiled.Events.Handlers.Player.DroppingItem += Player_DroppingItem;
-            Exiled.Events.Handlers.Player.DroppingAmmo += Player_DroppingAmmo;
-            Exiled.Events.Handlers.Player.Shooting += Player_Shooting;
-            Exiled.Events.Handlers.Player.PickingUpItem += Player_PickingUpItem;
+            Player.Shot += Player_Shot;
+            Player.ItemAdded += Player_ItemAdded;
+            Player.UsingItem += Player_UsingItem;
+            Player.InteractingDoor += Player_InteractingDoor;
+            Player.DroppingItem += Player_DroppingItem;
+            Player.DroppingAmmo += Player_DroppingAmmo;
+            Player.Shooting += Player_Shooting;
+            Player.PickingUpItem += Player_PickingUpItem;
+            Player.Hurting += Player_Hurting;
             Exiled.Events.Handlers.Scp173.Blinking += Scp173_Blinking;
             Exiled.Events.Handlers.Scp106.Teleporting += Scp106_Teleporting;
             Exiled.Events.Handlers.Scp096.Enraging += Scp096_Enraging;
         }
 
         // ________________________________________DISABLING THE PLAYER________________________________________
+
+        private void Player_Hurting(Exiled.Events.EventArgs.HurtingEventArgs ev)
+        {
+            if (disabledPlayers.Contains(ev.Attacker.UserId))
+            {
+                ev.IsAllowed = false;
+                ev.Attacker.ClearBroadcasts();
+                ev.Attacker.Broadcast(new Broadcast("You <color=red>cannot</color> do anything when <color=red>tranquilized</color>", 3, true));
+            }
+            else
+            {
+                ev.IsAllowed = true;
+            }
+        }
 
         private void Player_Shooting(Exiled.Events.EventArgs.ShootingEventArgs ev)
         {
@@ -161,8 +174,9 @@ namespace SCPSLTranquilizer
 
         private void Scp096_Enraging(Exiled.Events.EventArgs.EnragingEventArgs ev)
         {
-            if (!canEnrage)
+            if (disabledPlayers.Contains(ev.Player.UserId))
             {
+                ev.Scp096.ResetEnrage();
                 ev.IsAllowed = false;
             }
             else
@@ -207,29 +221,29 @@ namespace SCPSLTranquilizer
             // Destroy the tranquilizer (It only has one shot)
             ev.Shooter.CurrentItem.Destroy();
 
-            // Pacify 096
-            canEnrage = false;
-
             // Create the ragdoll
-            Ragdoll playerRagdoll = new Ragdoll(new RagdollInfo(Server.Host.ReferenceHub, new UniversalDamageHandler(200, DeathTranslations.Unknown), ev.Target.Role.Type, ev.Target.Position + (Vector3.up * 1f), default, "SCP-343", NetworkTime.time), true);
-            playerRagdoll.Spawn();
+            Ragdoll playerRagdoll;
 
             // Check if the target is an SCP
             if (isSCP)
             {
                 if (is096) // Check if the target is 096
                 {
-                    // Remove 096's ragdoll [TESTING]
-                    playerRagdoll.Delete();
+                    // Pacify 096
+                    disabledPlayers.Add(ev.Target.UserId);
 
                     // Pacify timing
                     yield return Timing.WaitForSeconds((float)Config.SCPKnockoutTime);
 
                     // Return 096
-                    canEnrage = true;
+                    disabledPlayers.Remove(ev.Target.UserId);
                 }
                 else
                 {
+                    // Create the ragdoll
+                    playerRagdoll = new Ragdoll(new RagdollInfo(Server.Host.ReferenceHub, new UniversalDamageHandler(200, DeathTranslations.Unknown), ev.Target.Role.Type, ev.Target.Position + (Vector3.up * 1f), default, "SCP-343", NetworkTime.time), true);
+                    playerRagdoll.Spawn();
+
                     // Disable the player and turn the player invisible (Used for shootable ragdolls)
                     ev.Target.CanSendInputs = false;
                     ev.Target.IsInvisible = true;
@@ -253,6 +267,10 @@ namespace SCPSLTranquilizer
             }
             else 
             {
+                // Create the ragdoll
+                playerRagdoll = new Ragdoll(new RagdollInfo(Server.Host.ReferenceHub, new UniversalDamageHandler(200, DeathTranslations.Unknown), ev.Target.Role.Type, ev.Target.Position + (Vector3.up * 1f), default, "SCP-343", NetworkTime.time), true);
+                playerRagdoll.Spawn();
+
                 // Disable the player and turn the player invisible (Used for shootable ragdolls)
                 ev.Target.CanSendInputs = false;
                 ev.Target.IsInvisible = true;
