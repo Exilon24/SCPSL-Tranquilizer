@@ -22,7 +22,8 @@ namespace SCPSLTranquilizer
         public override System.Version Version => new System.Version(1, 3, 2);
 
         public bool canEnrage = true;
-        public string[] disabledPlayers = new string[] { };
+
+        public List<string> disabledPlayers = new List<string>();
 
         public override void OnDisabled()
         {
@@ -61,16 +62,13 @@ namespace SCPSLTranquilizer
 
         private void Scp173_Blinking(Exiled.Events.EventArgs.BlinkingEventArgs ev)
         {
-            if (disabledPlayers != null)
+            if (disabledPlayers.Contains(ev.Player.UserId))
             {
-                if (disabledPlayers.Contains(ev.Player.UserId))
-                {
-                    ev.IsAllowed = false;
-                }
-                else
-                {
-                    ev.IsAllowed = true;
-                }
+                ev.IsAllowed = false;
+            }
+            else
+            {
+                ev.IsAllowed = true;
             }
         }
 
@@ -223,7 +221,7 @@ namespace SCPSLTranquilizer
                     // Disable the player and turn the player invisible (Used for shootable ragdolls)
                     ev.Target.CanSendInputs = false;
                     ev.Target.IsInvisible = true;
-                    disabledPlayers.Append(ev.Target.UserId);
+                    disabledPlayers.Add(ev.Target.UserId);
 
                     // Blind and deafen the target
                     ev.Target.EnableEffect(Exiled.API.Enums.EffectType.Blinded, (float) Config.SCPKnockoutTime);
@@ -233,7 +231,7 @@ namespace SCPSLTranquilizer
                     yield return Timing.WaitForSeconds((float)Config.SCPKnockoutTime);
 
                     // Enable the player
-                    disabledPlayers = disabledPlayers.Where(e => e != ev.Target.UserId).ToArray();
+                    disabledPlayers.Remove(ev.Target.UserId);
                     ev.Target.CanSendInputs = true;
                     ev.Target.IsInvisible = false;
 
@@ -256,7 +254,7 @@ namespace SCPSLTranquilizer
                 yield return Timing.WaitForSeconds((float)Config.HumanKnockoutTime);
 
                 // Enable the player
-                disabledPlayers = disabledPlayers.Where(e => e != ev.Target.UserId).ToArray();
+                disabledPlayers.Remove(ev.Target.UserId);
                 ev.Target.CanSendInputs = true;
                 ev.Target.IsInvisible = false;
 
