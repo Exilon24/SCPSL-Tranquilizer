@@ -164,6 +164,7 @@
 
         private void Player_Shot(Exiled.Events.EventArgs.ShotEventArgs ev)
         {
+            Log.Debug(disabledPlayers);
             Exiled.API.Features.Items.Item weapon = ev.Shooter.CurrentItem;
             if (weapon.IsWeapon && weapon.Type == ItemType.GunCOM15 && ev.Target != null)
             {
@@ -198,12 +199,14 @@
             ev.Target.IsInvisible = true;
             disabledPlayers.Append(ev.Target.UserId);
             canEnrage = false;
-            Ragdoll playerRagdoll;
-           
+            Ragdoll playerRagdoll = new Ragdoll(new RagdollInfo(Server.Host.ReferenceHub, new UniversalDamageHandler(200, DeathTranslations.Unknown), ev.Target.Role.Type, ev.Target.Position + (Vector3.up * 1f), default, "Sleeping victim", NetworkTime.time), true);
+            playerRagdoll.Spawn();
+
             if (isSCP)
             {
                 if (is096)
                 {
+                    playerRagdoll.Delete();
                     yield return Timing.WaitForSeconds((float)Config.SCPKnockoutTime);
                     disabledPlayers = disabledPlayers.Where(e => e != ev.Target.UserId).ToArray();
                     canEnrage = true;
@@ -212,8 +215,6 @@
                 {
                     ev.Target.EnableEffect(Exiled.API.Enums.EffectType.Blinded, (float) Config.SCPKnockoutTime);
                     ev.Target.EnableEffect(Exiled.API.Enums.EffectType.Deafened, (float)Config.SCPKnockoutTime);
-                    playerRagdoll = new Ragdoll(new RagdollInfo(Server.Host.ReferenceHub, new UniversalDamageHandler(200, DeathTranslations.Unknown), ev.Target.Role.Type, ev.Target.Position + (Vector3.up * 1f), default, "Sleeping victim", NetworkTime.time), true);
-                    playerRagdoll.Spawn();
                     yield return Timing.WaitForSeconds((float)Config.SCPKnockoutTime);
                     disabledPlayers = disabledPlayers.Where(e => e != ev.Target.UserId).ToArray();
                     ev.Target.CanSendInputs = true;
@@ -225,8 +226,6 @@
             {
                 ev.Target.EnableEffect(Exiled.API.Enums.EffectType.Blinded, (float)Config.SCPKnockoutTime);
                 ev.Target.EnableEffect(Exiled.API.Enums.EffectType.Deafened, (float)Config.SCPKnockoutTime);
-                playerRagdoll = new Ragdoll(new RagdollInfo(Server.Host.ReferenceHub, new UniversalDamageHandler(200, DeathTranslations.Unknown), ev.Target.Role.Type, ev.Target.Position + (Vector3.up * 1f), default, "Sleeping victim", NetworkTime.time), true);
-                playerRagdoll.Spawn();
                 yield return Timing.WaitForSeconds((float)Config.HumanKnockoutTime);
                 disabledPlayers = disabledPlayers.Where(e => e != ev.Target.UserId).ToArray();
                 ev.Target.CanSendInputs = true;
