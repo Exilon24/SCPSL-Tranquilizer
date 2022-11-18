@@ -1,4 +1,9 @@
-﻿namespace SCPSLTranquilizer
+﻿// TODO:
+// REMOVE DEBUGGING
+// Make Config.Pacify106 do something when disabled
+// #include <iostream>
+
+namespace SCPSLTranquilizer
 {
     using Exiled.API.Features;
     using MEC;
@@ -7,6 +12,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using UnityEngine;
+    using Item = Exiled.API.Features.Items.Item;
 
     public class Plugin : Plugin<Config>
     {
@@ -16,7 +22,7 @@
         public override System.Version Version => new System.Version(1, 3, 2);
 
         public bool canEnrage = true;
-        public string[] ?disabledPlayers;
+        public string[] disabledPlayers = new string[] { };
 
         public override void OnDisabled()
         {
@@ -37,6 +43,7 @@
             Exiled.Events.Handlers.Scp096.Enraging += Scp096_Enraging;
         }
 
+        // ________________________________________DISABLING THE PLAYER________________________________________
         private void Scp106_Teleporting(Exiled.Events.EventArgs.TeleportingEventArgs ev)
         {
             if (disabledPlayers != null)
@@ -161,75 +168,99 @@
                 ev.Player.Broadcast(new Broadcast($"You picked up the <color=red>tranquilizer</color>", 5, true));
             }
         }
+        // ________________________________________DISABLING THE PLAYER________________________________________
 
+
+        // When someone is shot by the tranquilizer
         private void Player_Shot(Exiled.Events.EventArgs.ShotEventArgs ev)
         {
-            Log.Debug(disabledPlayers);
-            Exiled.API.Features.Items.Item weapon = ev.Shooter.CurrentItem;
+            Log.Debug(disabledPlayers); // TODO: Remove debugging
+
+            // Get the current weapon instance
+            Item weapon = ev.Shooter.CurrentItem;
+            
+            // Check if the weapon is a COM15 (Tranquilizer)
             if (weapon.IsWeapon && weapon.Type == ItemType.GunCOM15 && ev.Target != null)
             {
-                ev.Shooter.Broadcast(new Broadcast($"You tranquilized <color=red>{ev.Target.Nickname}</color>", 3, true));
+                // Tell the user that they tranquilized someone.
+                ev.Shooter.Broadcast(new Broadcast($"You tranquilized <color=red><b>{ev.Target.Nickname}</b></color>", 3, true));
                 ev.Target.Broadcast(new Broadcast($"You where tranquilized by <color=red>{ev.Shooter.Nickname}</color>!", 3, true));
 
-                if (ev.Target.IsScp)
-                {
-                    // Check if the SCP is 096
-                    if (ev.Target.Role.Type == RoleType.Scp096 && Config.pacify096)
-                    {
-                        ev.Target.Broadcast(new Broadcast("You have been pacified!", 5, true));
-                        Timing.RunCoroutine(knockout(true, true, ev));
-                    }
-                    else
-                    {
-                        Timing.RunCoroutine(knockout(true, false, ev));
-                    }
-                }
-                else
-                {
-                    Timing.RunCoroutine(knockout(false, false, ev));
-                }
-               
+                // Knock out the target
+                Timing.RunCoroutine(knockout(ev.Target.IsScp, (ev.Target.Role.Type == RoleType.Scp096), ev));
             }
         }
 
+        // Corountine to knock out the victims
         public IEnumerator<float> knockout(bool isSCP, bool is096, Exiled.Events.EventArgs.ShotEventArgs ev)
         {
+            // Destroy the tranquilizer (It only has one shot)
             ev.Shooter.CurrentItem.Destroy();
-            ev.Target.CanSendInputs = false;
-            ev.Target.IsInvisible = true;
-            disabledPlayers.Append(ev.Target.UserId);
+
+            // Pacify 096
             canEnrage = false;
+
+            // Create the ragdoll
             Ragdoll playerRagdoll = new Ragdoll(new RagdollInfo(Server.Host.ReferenceHub, new UniversalDamageHandler(200, DeathTranslations.Unknown), ev.Target.Role.Type, ev.Target.Position + (Vector3.up * 1f), default, "SCP-343", NetworkTime.time), true);
             playerRagdoll.Spawn();
 
+            // Check if the target is an SCP
             if (isSCP)
             {
-                if (is096)
+                if (is096) // Check if the target is 096
                 {
+                    // Remove 096's ragdoll [TESTING]
                     playerRagdoll.Delete();
+
+                    // Pacify timing
                     yield return Timing.WaitForSeconds((float)Config.SCPKnockoutTime);
-                    disabledPlayers = disabledPlayers.Where(e => e != ev.Target.UserId).ToArray();
+
+                    // Return 096
                     canEnrage = true;
                 }
                 else
                 {
+                    // Disable the player and turn the player invisible (Used for shootable ragdolls)
+                    ev.Target.CanSendInputs = false;
+                    ev.Target.IsInvisible = true;
+                    disabledPlayers.Append(ev.Target.UserId);
+
+                    // Blind and deafen the target
                     ev.Target.EnableEffect(Exiled.API.Enums.EffectType.Blinded, (float) Config.SCPKnockoutTime);
                     ev.Target.EnableEffect(Exiled.API.Enums.EffectType.Deafened, (float)Config.SCPKnockoutTime);
+
+                    // Tranquilized time
                     yield return Timing.WaitForSeconds((float)Config.SCPKnockoutTime);
+
+                    // Enable the player
                     disabledPlayers = disabledPlayers.Where(e => e != ev.Target.UserId).ToArray();
                     ev.Target.CanSendInputs = true;
                     ev.Target.IsInvisible = false;
+
+                    // Destroy the ragdoll
                     playerRagdoll.Delete();
                 }
             }
             else 
             {
+                // Disable the player and turn the player invisible (Used for shootable ragdolls)
+                ev.Target.CanSendInputs = false;
+                ev.Target.IsInvisible = true;
+                disabledPlayers.Append(ev.Target.UserId);
+
+                // Blind and deafen the target
                 ev.Target.EnableEffect(Exiled.API.Enums.EffectType.Blinded, (float)Config.SCPKnockoutTime);
                 ev.Target.EnableEffect(Exiled.API.Enums.EffectType.Deafened, (float)Config.SCPKnockoutTime);
+
+                // Tranquilized time
                 yield return Timing.WaitForSeconds((float)Config.HumanKnockoutTime);
+
+                // Enable the player
                 disabledPlayers = disabledPlayers.Where(e => e != ev.Target.UserId).ToArray();
                 ev.Target.CanSendInputs = true;
                 ev.Target.IsInvisible = false;
+
+                // Destroy the ragdoll
                 playerRagdoll.Delete();
             }
         }
