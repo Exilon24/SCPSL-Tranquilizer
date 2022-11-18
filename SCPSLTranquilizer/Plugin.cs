@@ -16,7 +16,7 @@
         public override System.Version Version => new System.Version(1, 3, 2);
 
         public bool canEnrage = true;
-        public string[] disabledPlayers;
+        public string[] ?disabledPlayers;
 
         public override void OnDisabled()
         {
@@ -39,85 +39,106 @@
 
         private void Scp106_Teleporting(Exiled.Events.EventArgs.TeleportingEventArgs ev)
         {
-            if (disabledPlayers.Contains(ev.Player.UserId))
+            if (disabledPlayers != null)
             {
-                ev.IsAllowed = false;
-            }
-            else
-            {
-                ev.IsAllowed = true;
+                if (disabledPlayers.Contains(ev.Player.UserId))
+                {
+                    ev.IsAllowed = false;
+                }
+                else
+                {
+                    ev.IsAllowed = true;
+                }
             }
         }
 
         private void Scp173_Blinking(Exiled.Events.EventArgs.BlinkingEventArgs ev)
         {
-            if (disabledPlayers.Contains(ev.Player.UserId))
+            if (disabledPlayers != null)
             {
-                ev.IsAllowed = false;
-            }
-            else
-            {
-                ev.IsAllowed = true;
+                if (disabledPlayers.Contains(ev.Player.UserId))
+                {
+                    ev.IsAllowed = false;
+                }
+                else
+                {
+                    ev.IsAllowed = true;
+                }
             }
         }
 
         private void Player_PickingUpItem(Exiled.Events.EventArgs.PickingUpItemEventArgs ev)
         {
-            if (disabledPlayers.Contains(ev.Player.UserId))
+            if (disabledPlayers != null)
             {
-                ev.IsAllowed = false;
-            }
-            else
-            {
-                ev.IsAllowed = true;
+                if (disabledPlayers.Contains(ev.Player.UserId))
+                {
+                    ev.IsAllowed = false;
+                }
+                else
+                {
+                    ev.IsAllowed = true;
+                }
             }
         }
 
         private void Player_DroppingAmmo(Exiled.Events.EventArgs.DroppingAmmoEventArgs ev)
         {
-            if (disabledPlayers.Contains(ev.Player.UserId))
+            if (disabledPlayers != null)
             {
-                ev.IsAllowed = false;
-            }
-            else
-            {
-                ev.IsAllowed = true;
+                if (disabledPlayers.Contains(ev.Player.UserId))
+                {
+                    ev.IsAllowed = false;
+                }
+                else
+                {
+                    ev.IsAllowed = true;
+                }
             }
         }
 
         private void Player_DroppingItem(Exiled.Events.EventArgs.DroppingItemEventArgs ev)
         {
-            if (disabledPlayers.Contains(ev.Player.UserId))
+            if (disabledPlayers != null)
             {
-                ev.IsAllowed = false;
-            }
-            else
-            {
-                ev.IsAllowed = true;
+                if (disabledPlayers.Contains(ev.Player.UserId))
+                {
+                    ev.IsAllowed = false;
+                }
+                else
+                {
+                    ev.IsAllowed = true;
+                }
             }
         }
 
         private void Player_InteractingDoor(Exiled.Events.EventArgs.InteractingDoorEventArgs ev)
         {
-            if (disabledPlayers.Contains(ev.Player.UserId))
+            if (disabledPlayers != null)
             {
-                ev.IsAllowed = false;
-            }
-            else
-            {
-                ev.IsAllowed = true;
+                if (disabledPlayers.Contains(ev.Player.UserId))
+                {
+                    ev.IsAllowed = false;
+                }
+                else
+                {
+                    ev.IsAllowed = true;
+                }
             }
         }
 
         private void Player_UsingItem(Exiled.Events.EventArgs.UsingItemEventArgs ev)
         {
-            if (disabledPlayers.Contains(ev.Player.UserId))
+            if (disabledPlayers != null)
             {
-                ev.IsAllowed = false;
-            }
-            else
-            {
-                ev.IsAllowed = true;
+                if (disabledPlayers.Contains(ev.Player.UserId))
+                {
+                    ev.IsAllowed = false;
+                }
+                else
+                {
+                    ev.IsAllowed = true;
+                }
             }
         }
 
@@ -172,6 +193,7 @@
 
         public IEnumerator<float> knockout(bool isSCP, bool is096, Exiled.Events.EventArgs.ShotEventArgs ev)
         {
+            ev.Shooter.CurrentItem.Destroy();
             ev.Target.CanSendInputs = false;
             ev.Target.IsInvisible = true;
             disabledPlayers.Append(ev.Target.UserId);
@@ -189,6 +211,7 @@
                 else
                 {
                     ev.Target.EnableEffect(Exiled.API.Enums.EffectType.Blinded, (float) Config.SCPKnockoutTime);
+                    ev.Target.EnableEffect(Exiled.API.Enums.EffectType.Deafened, (float)Config.SCPKnockoutTime);
                     playerRagdoll = new Ragdoll(new RagdollInfo(Server.Host.ReferenceHub, new UniversalDamageHandler(200, DeathTranslations.Unknown), ev.Target.Role.Type, ev.Target.Position + (Vector3.up * 1f), default, "Sleeping victim", NetworkTime.time), true);
                     playerRagdoll.Spawn();
                     yield return Timing.WaitForSeconds((float)Config.SCPKnockoutTime);
@@ -201,6 +224,7 @@
             else 
             {
                 ev.Target.EnableEffect(Exiled.API.Enums.EffectType.Blinded, (float)Config.SCPKnockoutTime);
+                ev.Target.EnableEffect(Exiled.API.Enums.EffectType.Deafened, (float)Config.SCPKnockoutTime);
                 playerRagdoll = new Ragdoll(new RagdollInfo(Server.Host.ReferenceHub, new UniversalDamageHandler(200, DeathTranslations.Unknown), ev.Target.Role.Type, ev.Target.Position + (Vector3.up * 1f), default, "Sleeping victim", NetworkTime.time), true);
                 playerRagdoll.Spawn();
                 yield return Timing.WaitForSeconds((float)Config.HumanKnockoutTime);
