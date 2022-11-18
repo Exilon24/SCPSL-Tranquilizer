@@ -38,6 +38,7 @@ namespace SCPSLTranquilizer
             Exiled.Events.Handlers.Player.InteractingDoor += Player_InteractingDoor;
             Exiled.Events.Handlers.Player.DroppingItem += Player_DroppingItem;
             Exiled.Events.Handlers.Player.DroppingAmmo += Player_DroppingAmmo;
+            Exiled.Events.Handlers.Player.Shooting += Player_Shooting;
             Exiled.Events.Handlers.Player.PickingUpItem += Player_PickingUpItem;
             Exiled.Events.Handlers.Scp173.Blinking += Scp173_Blinking;
             Exiled.Events.Handlers.Scp106.Teleporting += Scp106_Teleporting;
@@ -45,18 +46,32 @@ namespace SCPSLTranquilizer
         }
 
         // ________________________________________DISABLING THE PLAYER________________________________________
+
+        private void Player_Shooting(Exiled.Events.EventArgs.ShootingEventArgs ev)
+        {
+            if (disabledPlayers.Contains(ev.Shooter.UserId))
+            {
+                ev.Shooter.ClearBroadcasts();
+                ev.Shooter.Broadcast(new Broadcast("You <color=red>cannot</color> do anything when <color=red>tranquilized</color>", 3, true));
+                ev.IsAllowed = false;
+            }
+            else
+            {
+                ev.IsAllowed = true;
+            };
+        }
+
         private void Scp106_Teleporting(Exiled.Events.EventArgs.TeleportingEventArgs ev)
         {
-            if (disabledPlayers != null)
+            if (disabledPlayers.Contains(ev.Player.UserId))
             {
-                if (disabledPlayers.Contains(ev.Player.UserId))
-                {
-                    ev.IsAllowed = false;
-                }
-                else
-                {
-                    ev.IsAllowed = true;
-                }
+                ev.Player.ClearBroadcasts();
+                ev.Player.Broadcast(new Broadcast("You <color=red>cannot</color> do anything when <color=red>tranquilized</color>", 3, true));
+                ev.IsAllowed = false;
+            }
+            else
+            {
+                ev.IsAllowed = true;
             }
         }
 
@@ -64,6 +79,8 @@ namespace SCPSLTranquilizer
         {
             if (disabledPlayers.Contains(ev.Player.UserId))
             {
+                ev.Player.ClearBroadcasts();
+                ev.Player.Broadcast(new Broadcast("You <color=red>cannot</color> do anything when <color=red>tranquilized</color>", 3, true));
                 ev.IsAllowed = false;
             }
             else
@@ -74,76 +91,71 @@ namespace SCPSLTranquilizer
 
         private void Player_PickingUpItem(Exiled.Events.EventArgs.PickingUpItemEventArgs ev)
         {
-            if (disabledPlayers != null)
+            if (disabledPlayers.Contains(ev.Player.UserId))
             {
-                if (disabledPlayers.Contains(ev.Player.UserId))
-                {
-                    ev.IsAllowed = false;
-                }
-                else
-                {
-                    ev.IsAllowed = true;
-                }
+                ev.Player.ClearBroadcasts();
+                ev.Player.Broadcast(new Broadcast("You <color=red>cannot</color> do anything when <color=red>tranquilized</color>", 3, true));
+                ev.IsAllowed = false;
             }
+            else
+            {
+                ev.IsAllowed = true;
+            };
         }
 
         private void Player_DroppingAmmo(Exiled.Events.EventArgs.DroppingAmmoEventArgs ev)
         {
-            if (disabledPlayers != null)
+            if (disabledPlayers.Contains(ev.Player.UserId))
             {
-                if (disabledPlayers.Contains(ev.Player.UserId))
-                {
-                    ev.IsAllowed = false;
-                }
-                else
-                {
-                    ev.IsAllowed = true;
-                }
+                ev.Player.ClearBroadcasts();
+                ev.Player.Broadcast(new Broadcast("You <color=red>cannot</color> do anything when <color=red>tranquilized</color>", 3, true));
+                ev.IsAllowed = false;
+            }
+            else
+            {
+                ev.IsAllowed = true;
             }
         }
 
         private void Player_DroppingItem(Exiled.Events.EventArgs.DroppingItemEventArgs ev)
         {
-            if (disabledPlayers != null)
+            if (disabledPlayers.Contains(ev.Player.UserId))
             {
-                if (disabledPlayers.Contains(ev.Player.UserId))
-                {
-                    ev.IsAllowed = false;
-                }
-                else
-                {
-                    ev.IsAllowed = true;
-                }
+                ev.Player.ClearBroadcasts();
+                ev.Player.Broadcast(new Broadcast("You <color=red>cannot</color> do anything when <color=red>tranquilized</color>", 3, true));
+                ev.IsAllowed = false;
+            }
+            else
+            {
+                ev.IsAllowed = true;
             }
         }
 
         private void Player_InteractingDoor(Exiled.Events.EventArgs.InteractingDoorEventArgs ev)
         {
-            if (disabledPlayers != null)
+            if (disabledPlayers.Contains(ev.Player.UserId))
             {
-                if (disabledPlayers.Contains(ev.Player.UserId))
-                {
-                    ev.IsAllowed = false;
-                }
-                else
-                {
-                    ev.IsAllowed = true;
-                }
+                ev.Player.ClearBroadcasts();
+                ev.Player.Broadcast(new Broadcast("You <color=red>cannot</color> do anything when <color=red>tranquilized</color>", 3, true));
+                ev.IsAllowed = false;
+            }
+            else
+            {
+                ev.IsAllowed = true;
             }
         }
 
         private void Player_UsingItem(Exiled.Events.EventArgs.UsingItemEventArgs ev)
         {
-            if (disabledPlayers != null)
+            if (disabledPlayers.Contains(ev.Player.UserId))
             {
-                if (disabledPlayers.Contains(ev.Player.UserId))
-                {
-                    ev.IsAllowed = false;
-                }
-                else
-                {
-                    ev.IsAllowed = true;
-                }
+                ev.Player.ClearBroadcasts();
+                ev.Player.Broadcast(new Broadcast("You <color=red>cannot</color> do anything when <color=red>tranquilized</color>", 3, true));
+                ev.IsAllowed = false;
+            }
+            else
+            {
+                ev.IsAllowed = true;
             }
         }
 
@@ -172,7 +184,7 @@ namespace SCPSLTranquilizer
         // When someone is shot by the tranquilizer
         private void Player_Shot(Exiled.Events.EventArgs.ShotEventArgs ev)
         {
-            Log.Debug(disabledPlayers); // TODO: Remove debugging
+            Log.Debug(disabledPlayers.ToArray()); // TODO: Remove debugging
 
             // Get the current weapon instance
             Item weapon = ev.Shooter.CurrentItem;
