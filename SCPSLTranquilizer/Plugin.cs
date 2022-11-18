@@ -256,7 +256,7 @@ namespace SCPSLTranquilizer
                 // Disable the player and turn the player invisible (Used for shootable ragdolls)
                 ev.Target.CanSendInputs = false;
                 ev.Target.IsInvisible = true;
-                disabledPlayers.Append(ev.Target.UserId);
+                disabledPlayers.Add(ev.Target.UserId);
 
                 // Blind and deafen the target
                 ev.Target.EnableEffect(Exiled.API.Enums.EffectType.Blinded, (float)Config.SCPKnockoutTime);
