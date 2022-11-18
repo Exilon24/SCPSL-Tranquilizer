@@ -1,6 +1,4 @@
 ﻿// TODO:
-// REMOVE DEBUGGING
-// Make Config.Pacify106 do something when disabled
 // #include <iostream>
 
 namespace SCPSLTranquilizer
@@ -23,6 +21,9 @@ namespace SCPSLTranquilizer
 
         public List<string> disabledPlayers = new List<string>();
 
+        // Create the ragdoll
+        Ragdoll? playerRagdoll;
+
         public override void OnDisabled()
         {
             ;
@@ -39,12 +40,26 @@ namespace SCPSLTranquilizer
             Player.Shooting += Player_Shooting;
             Player.PickingUpItem += Player_PickingUpItem;
             Player.Hurting += Player_Hurting;
+            Player.Died += Player_Died;
+            Exiled.Events.Handlers.Scp096.AddingTarget += Scp096_AddingTarget;
             Exiled.Events.Handlers.Scp173.Blinking += Scp173_Blinking;
             Exiled.Events.Handlers.Scp106.Teleporting += Scp106_Teleporting;
             Exiled.Events.Handlers.Scp096.Enraging += Scp096_Enraging;
         }
 
+        private void Scp096_AddingTarget(Exiled.Events.EventArgs.AddingTargetEventArgs ev)
+        {
+            throw new NotImplementedException();
+        }
+
         // ________________________________________DISABLING THE PLAYER________________________________________
+        private void Player_Died(Exiled.Events.EventArgs.DiedEventArgs ev)
+        {
+            if (playerRagdoll != null)
+            {
+                playerRagdoll.Delete();
+            }
+        }
 
         private void Player_Hurting(Exiled.Events.EventArgs.HurtingEventArgs ev)
         {
@@ -176,7 +191,6 @@ namespace SCPSLTranquilizer
         {
             if (disabledPlayers.Contains(ev.Player.UserId))
             {
-                ev.Scp096.ResetEnrage();
                 ev.IsAllowed = false;
             }
             else
@@ -220,9 +234,6 @@ namespace SCPSLTranquilizer
         {
             // Destroy the tranquilizer (It only has one shot)
             ev.Shooter.CurrentItem.Destroy();
-
-            // Create the ragdoll
-            Ragdoll playerRagdoll;
 
             // Check if the target is an SCP
             if (isSCP)
