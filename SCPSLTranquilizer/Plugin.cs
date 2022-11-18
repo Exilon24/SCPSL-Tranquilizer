@@ -2,16 +2,17 @@
 {
     using Exiled.API.Features;
     using MEC;
+    using Mirror;
     using PlayerStatsSystem;
     using System.Collections.Generic;
-
+    using UnityEngine;
 
     public class Plugin : Plugin<Config>
     {
         // Shit I have to override for the plugin to work
         public override string Name => "SCP:SL Tranquilizer";
         public override string Author => "(S)Exilon";
-        public override Version Version => new Version(1, 3, 1);
+        public override System.Version Version => new System.Version(1, 3, 2);
 
         public bool canEnrage = true;
 
@@ -85,21 +86,19 @@
             ev.Target.IsInvisible = true;
 
             // Spawn ragdoll
-            Ragdoll playerRagdoll = new Ragdoll(new RagdollInfo(Server.Host.ReferenceHub, new UniversalDamageHandler(200, DeathTranslations.Crushed), ev.Target.Position, default), true);
+            Ragdoll playerRagdoll = new Ragdoll(new RagdollInfo(Server.Host.ReferenceHub, new UniversalDamageHandler(200, DeathTranslations.Crushed), ev.Target.Role.Type, ev.Target.Position + (Vector3.up * 3f), default, "SCP-343", NetworkTime.time), true);
             playerRagdoll.Spawn();
            
             if (isSCP)
             {
                 if (is096)
                 {
-                    ev.Shooter.Broadcast(new Broadcast("<color=red>096</color> Pacified", 3, true));
                     canEnrage = false;
                     yield return Timing.WaitForSeconds((float)Config.SCPKnockoutTime);
                     canEnrage = true;
                 }
                 else
                 {
-                    ev.Shooter.Broadcast(new Broadcast("<color=red>SCP</color> Tranquilized", 3, true));
                     yield return Timing.WaitForSeconds((float)Config.SCPKnockoutTime);
                     ev.Target.CanSendInputs = true;
                     ev.Target.IsInvisible = false;
@@ -108,7 +107,6 @@
             }
             else 
             {
-                ev.Shooter.Broadcast(new Broadcast("<color=red>Human</color> Tranquilized", 3, true));
                 yield return Timing.WaitForSeconds((float)Config.HumanKnockoutTime);
                 ev.Target.CanSendInputs = true;
                 ev.Target.IsInvisible = false;
