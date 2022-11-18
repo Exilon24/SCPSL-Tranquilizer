@@ -199,7 +199,7 @@
             ev.Target.IsInvisible = true;
             disabledPlayers.Append(ev.Target.UserId);
             canEnrage = false;
-            Ragdoll playerRagdoll = new Ragdoll(new RagdollInfo(Server.Host.ReferenceHub, new UniversalDamageHandler(200, DeathTranslations.Unknown), ev.Target.Role.Type, ev.Target.Position + (Vector3.up * 1f), default, "Sleeping victim", NetworkTime.time), true);
+            Ragdoll playerRagdoll = new Ragdoll(new RagdollInfo(Server.Host.ReferenceHub, new UniversalDamageHandler(200, DeathTranslations.Unknown), ev.Target.Role.Type, ev.Target.Position + (Vector3.up * 1f), default, "SCP-343", NetworkTime.time), true);
             playerRagdoll.Spawn();
 
             if (isSCP)
