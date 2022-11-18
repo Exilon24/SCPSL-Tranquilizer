@@ -11,7 +11,7 @@
         // Shit I have to override for the plugin to work
         public override string Name => "SCP:SL Tranquilizer";
         public override string Author => "(S)Exilon";
-        public override Version Version => new Version(1, 0, 0);
+        public override Version Version => new Version(1, 3, 1);
 
         public bool canEnrage = true;
 
@@ -28,8 +28,6 @@
             Exiled.Events.Handlers.Player.Shot += Player_Shot;
             Exiled.Events.Handlers.Player.ItemAdded += Player_ItemAdded;
             Exiled.Events.Handlers.Scp096.Enraging += Scp096_Enraging;
-            new Broadcast("The mod works!", 20, true);
-            
         }
 
         private void Scp096_Enraging(Exiled.Events.EventArgs.EnragingEventArgs ev)
@@ -66,14 +64,16 @@
                     if (ev.Target.Role.Type == RoleType.Scp096 && Config.pacify096)
                     {
                         ev.Target.Broadcast(new Broadcast("You have been pacified!", 5, true));
-                        knockout(true, true, ev);
+                        Timing.RunCoroutine(knockout(true, true, ev));
                     }
-
-                    knockout(true, false, ev);
+                    else
+                    {
+                        Timing.RunCoroutine(knockout(true, false, ev));
+                    }
                 }
                 else
                 {
-                    knockout(false, false, ev);
+                    Timing.RunCoroutine(knockout(false, false, ev));
                 }
                
             }
@@ -85,14 +85,14 @@
             ev.Target.IsInvisible = true;
 
             // Spawn ragdoll
-            Ragdoll playerRagdoll = new Ragdoll(new RagdollInfo(Exiled.API.Features.Server.Host.ReferenceHub, new UniversalDamageHandler(200, DeathTranslations.Crushed), ev.Target.Position, default), true);
+            Ragdoll playerRagdoll = new Ragdoll(new RagdollInfo(Server.Host.ReferenceHub, new UniversalDamageHandler(200, DeathTranslations.Crushed), ev.Target.Position, default), true);
             playerRagdoll.Spawn();
            
             if (isSCP)
             {
                 if (is096)
                 {
-                    ev.Shooter.Broadcast(new Broadcast("<color=red>096</color> Tranquilized", 3, true));
+                    ev.Shooter.Broadcast(new Broadcast("<color=red>096</color> Pacified", 3, true));
                     canEnrage = false;
                     yield return Timing.WaitForSeconds((float)Config.SCPKnockoutTime);
                     canEnrage = true;
