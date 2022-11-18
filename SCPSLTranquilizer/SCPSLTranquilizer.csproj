@@ -12,19 +12,16 @@
 
   <ItemGroup>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>..\..\..\..\Downloads\EXILEDBin\Assembly-CSharp-firstpass.dll</HintPath>
-    </Reference>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\..\..\Downloads\EXILEDBin\Assembly-CSharp-Publicized.dll</HintPath>
+      <HintPath>..\..\..\..\Downloads\ExiledAssembly\Other\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="Mirror">
-      <HintPath>..\..\..\..\Downloads\EXILEDBin\Mirror.dll</HintPath>
+      <HintPath>..\..\..\..\Downloads\ExiledAssembly\Other\Mirror.dll</HintPath>
     </Reference>
-    <Reference Include="Mirror.Components">
-      <HintPath>..\..\..\..\Downloads\EXILEDBin\Mirror.Components.dll</HintPath>
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\..\..\Downloads\ExiledAssembly\Other\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\..\..\..\Downloads\EXILEDBin\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>..\..\..\..\Downloads\ExiledAssembly\Other\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
   </ItemGroup>
 

@@ -11,7 +11,7 @@
         // Shit I have to override for the plugin to work
         public override string Name => "SCP:SL Tranquilizer";
         public override string Author => "(S)Exilon";
-        public override System.Version Version => new System.Version(1, 0, 0);
+        public override Version Version => new Version(1, 0, 0);
 
         public bool canEnrage = true;
 
@@ -26,7 +26,7 @@
         public override void OnEnabled()
         {
             Exiled.Events.Handlers.Player.Shot += Player_Shot;
-            Exiled.Events.Handlers.Player.PickingUpItem += Player_PickingUpItem;
+            Exiled.Events.Handlers.Player.ItemAdded += Player_ItemAdded;
             Exiled.Events.Handlers.Scp096.Enraging += Scp096_Enraging;
             new Broadcast("The mod works!", 20, true);
             
@@ -44,9 +44,9 @@
             }
         }
 
-        private void Player_PickingUpItem(Exiled.Events.EventArgs.PickingUpItemEventArgs ev)
+        private void Player_ItemAdded(Exiled.Events.EventArgs.ItemAddedEventArgs ev)
         {
-            if (ev.Pickup.Type == ItemType.GunCOM15)
+            if (ev.Item.Type == ItemType.GunCOM15)
             {
                 ev.Player.Broadcast(new Broadcast($"You picked up the <color=red>tranquilizer</color>", 5, true));
             }
@@ -58,7 +58,7 @@
             if (weapon.IsWeapon && weapon.Type == ItemType.GunCOM15 && ev.Target != null)
             {
                 ev.Shooter.Broadcast(new Broadcast($"You tranquilized <color=red>{ev.Target.Nickname}</color>", 3, true));
-                ev.Target.Broadcast(new Broadcast($"You where tranquilized by <color=red>{ev.Target.Nickname}</color>!", 3, true));
+                ev.Target.Broadcast(new Broadcast($"You where tranquilized by <color=red>{ev.Shooter.Nickname}</color>!", 3, true));
 
                 if (ev.Target.IsScp)
                 {
@@ -79,12 +79,6 @@
             }
         }
 
-        /// <summary>
-        /// Block inputs from user when knocked out
-        /// </summary>
-        /// <param name="isSCP"></param>
-        /// <param name="ev"></param>
-        /// <returns></returns>
         public IEnumerator<float> knockout(bool isSCP, bool is096, Exiled.Events.EventArgs.ShotEventArgs ev)
         {
             ev.Target.CanSendInputs = false;
@@ -98,14 +92,14 @@
             {
                 if (is096)
                 {
-                    Log.Warn("096 Tranquilized");
+                    ev.Shooter.Broadcast(new Broadcast("<color=red>096</color> Tranquilized", 3, true));
                     canEnrage = false;
                     yield return Timing.WaitForSeconds((float)Config.SCPKnockoutTime);
                     canEnrage = true;
                 }
                 else
                 {
-                    Log.Warn("SCP Tranquilized");
+                    ev.Shooter.Broadcast(new Broadcast("<color=red>SCP</color> Tranquilized", 3, true));
                     yield return Timing.WaitForSeconds((float)Config.SCPKnockoutTime);
                     ev.Target.CanSendInputs = true;
                     ev.Target.IsInvisible = false;
@@ -114,7 +108,7 @@
             }
             else 
             {
-                Log.Warn("Human Tranquilized");
+                ev.Shooter.Broadcast(new Broadcast("<color=red>Human</color> Tranquilized", 3, true));
                 yield return Timing.WaitForSeconds((float)Config.HumanKnockoutTime);
                 ev.Target.CanSendInputs = true;
                 ev.Target.IsInvisible = false;
