@@ -240,6 +240,33 @@ namespace SCPSLTranquilizer
             }
         }
 
+        // Here to make the effect a little neater
+        public IEnumerator<float> knockoutEffect(Exiled.Events.EventArgs.ShotEventArgs ev)
+        {
+            playerRagdoll = new Ragdoll(new RagdollInfo(Server.Host.ReferenceHub, new UniversalDamageHandler(200, DeathTranslations.Poisoned), ev.Target.Role.Type, ev.Target.Position, default, "SCP-343", NetworkTime.time), true);
+            playerRagdoll.Spawn();
+
+            // Disable the player and turn the player invisible (Used for shootable ragdolls)
+            ev.Target.CanSendInputs = false;
+            ev.Target.IsInvisible = true;
+            disabledPlayers.Add(ev.Target.UserId);
+
+            // Blind and deafen the target
+            ev.Target.EnableEffect(Exiled.API.Enums.EffectType.Blinded, (float)Config.SCPKnockoutTime);
+            ev.Target.EnableEffect(Exiled.API.Enums.EffectType.Deafened, (float)Config.SCPKnockoutTime);
+
+            // Tranquilized time
+            yield return Timing.WaitForSeconds((float)Config.SCPKnockoutTime);
+
+            // Enable the player
+            disabledPlayers.Remove(ev.Target.UserId);
+            ev.Target.CanSendInputs = true;
+            ev.Target.IsInvisible = false;
+
+            // Destroy the ragdoll
+            playerRagdoll.Delete();
+        }
+
         // Corountine to knock out the victims
         // TODO: Dear god
         public IEnumerator<float> knockout(bool isSCP, bool is096, Exiled.Events.EventArgs.ShotEventArgs ev)
@@ -278,83 +305,17 @@ namespace SCPSLTranquilizer
                     // treat him normally
                     else 
                     {
-                        // Create the ragdoll
-                        playerRagdoll = new Ragdoll(new RagdollInfo(Server.Host.ReferenceHub, new UniversalDamageHandler(200, DeathTranslations.Poisoned), ev.Target.Role.Type, ev.Target.Position, default, "SCP-343", NetworkTime.time), true);
-                        playerRagdoll.Spawn();
-
-                        // Disable the player and turn the player invisible (Used for shootable ragdolls)
-                        ev.Target.CanSendInputs = false;
-                        ev.Target.IsInvisible = true;
-                        disabledPlayers.Add(ev.Target.UserId);
-
-                        // Blind and deafen the target
-                        ev.Target.EnableEffect(Exiled.API.Enums.EffectType.Blinded, (float)Config.SCPKnockoutTime);
-                        ev.Target.EnableEffect(Exiled.API.Enums.EffectType.Deafened, (float)Config.SCPKnockoutTime);
-
-                        // Tranquilized time
-                        yield return Timing.WaitForSeconds((float)Config.SCPKnockoutTime);
-
-                        // Enable the player
-                        disabledPlayers.Remove(ev.Target.UserId);
-                        ev.Target.CanSendInputs = true;
-                        ev.Target.IsInvisible = false;
-
-                        // Destroy the ragdoll
-                        playerRagdoll.Delete();
+                        Timing.RunCoroutine(knockoutEffect(ev));
                     }
                 }
                 else
                 {
-                    // Create the ragdoll
-                    playerRagdoll = new Ragdoll(new RagdollInfo(Server.Host.ReferenceHub, new UniversalDamageHandler(200, DeathTranslations.Poisoned), ev.Target.Role.Type, ev.Target.Position , default, "SCP-343", NetworkTime.time), true);
-                    playerRagdoll.Spawn();
-
-                    // Disable the player and turn the player invisible (Used for shootable ragdolls)
-                    ev.Target.CanSendInputs = false;
-                    ev.Target.IsInvisible = true;
-                    disabledPlayers.Add(ev.Target.UserId);
-
-                    // Blind and deafen the target
-                    ev.Target.EnableEffect(Exiled.API.Enums.EffectType.Blinded, (float) Config.SCPKnockoutTime);
-                    ev.Target.EnableEffect(Exiled.API.Enums.EffectType.Deafened, (float)Config.SCPKnockoutTime);
-
-                    // Tranquilized time
-                    yield return Timing.WaitForSeconds((float)Config.SCPKnockoutTime);
-
-                    // Enable the player
-                    disabledPlayers.Remove(ev.Target.UserId);
-                    ev.Target.CanSendInputs = true;
-                    ev.Target.IsInvisible = false;
-
-                    // Destroy the ragdoll
-                    playerRagdoll.Delete();
+                    Timing.RunCoroutine(knockoutEffect(ev));
                 }
             }
             else 
             {
-                // Create the ragdoll
-                playerRagdoll = new Ragdoll(new RagdollInfo(Server.Host.ReferenceHub, new UniversalDamageHandler(200, DeathTranslations.Poisoned), ev.Target.Role.Type, ev.Target.Position, default, "SCP-343", NetworkTime.time), true);
-                playerRagdoll.Spawn();
-
-                // Disable the player and turn the player invisible (Used for shootable ragdolls)
-                ev.Target.CanSendInputs = false;
-                ev.Target.IsInvisible = true;
-                disabledPlayers.Add(ev.Target.UserId);
-
-                // Blind and deafen the target
-                ev.Target.EnableEffect(Exiled.API.Enums.EffectType.Blinded, (float)Config.SCPKnockoutTime);
-                ev.Target.EnableEffect(Exiled.API.Enums.EffectType.Deafened, (float)Config.SCPKnockoutTime);
-
-                // Tranquilized time
-                yield return Timing.WaitForSeconds((float)Config.HumanKnockoutTime);
-
-                // Enable the player
-                disabledPlayers.Remove(ev.Target.UserId);
-                ev.Target.CanSendInputs = true;
-                ev.Target.IsInvisible = false;
-
-                // Destroy the ragdoll
-                playerRagdoll.Delete();
+                Timing.RunCoroutine(knockoutEffect(ev));
             }
         }
     }
