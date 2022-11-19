@@ -65,9 +65,8 @@ namespace SCPSLTranquilizer
             Exiled.Events.Handlers.Scp173.Blinking += Scp173_Blinking;
             Exiled.Events.Handlers.Scp106.Teleporting += Scp106_Teleporting;
             Exiled.Events.Handlers.Scp096.Enraging += Scp096_Enraging;
+            Exiled.Events.Handlers.Scp096.AddingTarget += Scp096_AddingTarget;
         }
-
-
 
         // ________________________________________DISABLING THE PLAYER________________________________________
 
@@ -283,6 +282,18 @@ namespace SCPSLTranquilizer
             }
         }
 
+        private void Scp096_AddingTarget(Exiled.Events.EventArgs.AddingTargetEventArgs ev)
+        {
+            if (disabledPlayers.Contains(ev.Scp096.UserId))
+            {
+                ev.IsAllowed = false;
+            }
+            else
+            {
+                ev.IsAllowed = true;
+            }
+        }
+
         private void Player_ItemAdded(Exiled.Events.EventArgs.ItemAddedEventArgs ev)
         {
             if (ev.Item.Type == ItemType.GunCOM15)
@@ -360,6 +371,7 @@ namespace SCPSLTranquilizer
                         {
                             role.Script.EnrageTimeLeft = 0f;
                             role.Script.EndEnrage();
+                            role.Script.UpdateEnrage();
 
                         }
                         // treat him normally
