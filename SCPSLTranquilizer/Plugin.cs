@@ -1,4 +1,5 @@
 ﻿// TODO:
+// Ammo system
 // #include <iostream>
 
 namespace SCPSLTranquilizer
@@ -285,12 +286,14 @@ namespace SCPSLTranquilizer
                     {
                         if (role.IsEnraged && Config.pacify096)
                         {
+                            role.Script.EnrageTimeLeft = 0f;
                             role.Script.EndEnrage();
+                            role.Script.UpdateEnrage();
                         }
                     }
 
                     // Pacify 096
-                    if (Config.pacify096)
+                    if (Config.pacify096 && role.IsEnraged)
                     {
                         // Pacify 096
                         disabledPlayers.Add(ev.Target.UserId);
