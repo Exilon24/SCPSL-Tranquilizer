@@ -320,12 +320,13 @@ namespace SCPSLTranquilizer
         // Here to make the effect a little neater
         public IEnumerator<float> knockoutEffect(Exiled.Events.EventArgs.ShotEventArgs ev)
         {
-            playerRagdoll = new Ragdoll(new RagdollInfo(Server.Host.ReferenceHub, new UniversalDamageHandler(200, DeathTranslations.Unknown), ev.Target.Role.Type, ev.Target.Position, default, "SCP-343", NetworkTime.time), true);
+            playerRagdoll = new Ragdoll(new RagdollInfo(Server.Host.ReferenceHub, new UniversalDamageHandler(200, DeathTranslations.Unknown), ev.Target.Role.Type, ev.Target.Position, default, ev.Target.DisplayNickname, NetworkTime.time), true);
             playerRagdoll.Spawn();
 
             // Disable the player and turn the player invisible (Used for shootable ragdolls)
             ev.Target.CanSendInputs = false;
             ev.Target.IsInvisible = true;
+
             disabledPlayers.Add(ev.Target.UserId);
 
             // Blind and deafen the target
@@ -360,26 +361,15 @@ namespace SCPSLTranquilizer
                         if (role.IsEnraged && Config.pacify096)
                         {
                             role.Script.EnrageTimeLeft = 0f;
+                            role.Script.EndEnrage();
+
                         }
-                    }
-
-                    // Pacify 096
-                    if (Config.pacify096 && role.IsEnraged)
-                    {
-                        // Pacify 096
-                        disabledPlayers.Add(ev.Target.UserId);
-
-                        // Pacify timing
-                        yield return Timing.WaitForSeconds((float)Config.SCPKnockoutTime);
-
-                        // Return 096
-                        disabledPlayers.Remove(ev.Target.UserId);
-                    }
-
-                    // treat him normally
-                    else
-                    {
-                        Timing.RunCoroutine(knockoutEffect(ev));
+                        // treat him normally
+                        else
+                        {
+                            disabledPlayers.Add(ev.Target.UserId);
+                            Timing.RunCoroutine(knockoutEffect(ev));
+                        }
                     }
                 }
                 else
@@ -391,6 +381,8 @@ namespace SCPSLTranquilizer
             {
                 Timing.RunCoroutine(knockoutEffect(ev));
             }
+
+            yield return Timing.WaitForSeconds(1f);
         }
     }
 }
