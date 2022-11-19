@@ -167,7 +167,6 @@ namespace SCPSLTranquilizer
 
                     if (gun.Ammo < 1)
                     {
-                        ev.Shooter.CurrentItem.Destroy();
                         ev.Shooter.ShowHint($"<color=red>OUT OF AMMO</color>", 10);
                     }
                 }
@@ -274,7 +273,7 @@ namespace SCPSLTranquilizer
 
         private void Scp096_Enraging(Exiled.Events.EventArgs.EnragingEventArgs ev)
         {
-            if (disabledPlayers.Contains(ev.Player.UserId))
+            if (disabledPlayers.Contains(ev.Player.UserId) && !ev.Scp096.Enraged)
             {
                 ev.IsAllowed = false;
             }
@@ -357,7 +356,7 @@ namespace SCPSLTranquilizer
                     Scp096Role role = ev.Target.Role as Scp096Role;
                     if (role != null)
                     {
-                        if (role.IsEnraged && Config.pacify096)
+                        if (role.Script.EnragedOrEnraging && Config.pacify096)
                         {
                             role.Script.EnrageTimeLeft = 0f;
                             role.Script.EndEnrage();
@@ -366,7 +365,6 @@ namespace SCPSLTranquilizer
                         // treat him normally
                         else
                         {
-                            disabledPlayers.Add(ev.Target.UserId);
                             Timing.RunCoroutine(knockoutEffect(ev));
                         }
                     }
