@@ -327,8 +327,13 @@ namespace SCPSLTranquilizer
         }
 
         // Here to make the effect a little neater
-        public IEnumerator<float> knockoutEffect(Exiled.Events.EventArgs.ShotEventArgs ev)
+        public IEnumerator<float> knockoutEffect(Exiled.Events.EventArgs.ShotEventArgs ev, Scp096Role role)
         {
+            if (ev.Target.Role.Type == RoleType.Scp096)
+            {
+                role = ev.Target.Role as Scp096Role;
+            }
+
             playerRagdoll = new Ragdoll(new RagdollInfo(Server.Host.ReferenceHub, new UniversalDamageHandler(200, DeathTranslations.Unknown), ev.Target.Role.Type, ev.Target.Position, default, ev.Target.DisplayNickname, NetworkTime.time), true);
             playerRagdoll.Spawn();
 
@@ -347,6 +352,7 @@ namespace SCPSLTranquilizer
 
             // Enable the player
             disabledPlayers.Remove(ev.Target.UserId);
+            role.Script.EnrageTimeLeft = 0f;
             ev.Target.CanSendInputs = true;
             ev.Target.IsInvisible = false;
 
@@ -369,26 +375,25 @@ namespace SCPSLTranquilizer
                     {
                         if (role.Script.EnragedOrEnraging && Config.pacify096)
                         {
-                            role.Script.EnrageTimeLeft = 0f;
-                            role.Script.EndEnrage();
+                            role.Script.PlayerState = PlayableScps.Scp096PlayerState.Calming;
                             role.Script.UpdateEnrage();
 
                         }
                         // treat him normally
                         else
                         {
-                            Timing.RunCoroutine(knockoutEffect(ev));
+                            Timing.RunCoroutine(knockoutEffect(ev, role));
                         }
                     }
                 }
                 else
                 {
-                    Timing.RunCoroutine(knockoutEffect(ev));
+                    Timing.RunCoroutine(knockoutEffect(ev, null));
                 }
             }
             else
             {
-                Timing.RunCoroutine(knockoutEffect(ev));
+                Timing.RunCoroutine(knockoutEffect(ev, null));
             }
 
             yield return Timing.WaitForSeconds(1f);
