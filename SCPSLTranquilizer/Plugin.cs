@@ -41,18 +41,27 @@ namespace SCPSLTranquilizer
             Player.PickingUpItem += Player_PickingUpItem;
             Player.Hurting += Player_Hurting;
             Player.Died += Player_Died;
-            Exiled.Events.Handlers.Scp096.AddingTarget += Scp096_AddingTarget;
+            Player.ThrowingItem += Player_ThrowingItem;
             Exiled.Events.Handlers.Scp173.Blinking += Scp173_Blinking;
             Exiled.Events.Handlers.Scp106.Teleporting += Scp106_Teleporting;
             Exiled.Events.Handlers.Scp096.Enraging += Scp096_Enraging;
         }
 
-        private void Scp096_AddingTarget(Exiled.Events.EventArgs.AddingTargetEventArgs ev)
-        {
-            throw new NotImplementedException();
-        }
-
         // ________________________________________DISABLING THE PLAYER________________________________________
+        private void Player_ThrowingItem(Exiled.Events.EventArgs.ThrowingItemEventArgs ev)
+        {
+            if (disabledPlayers.Contains(ev.Player.UserId))
+            {
+                ev.IsAllowed = false;
+                ev.Player.ClearBroadcasts();
+                ev.Player.Broadcast(new Broadcast("You <color=red>cannot</color> do anything when <color=red>tranquilized</color>", 3, true));
+            }
+            else
+            {
+                ev.IsAllowed = true;
+            }
+        }
+       
         private void Player_Died(Exiled.Events.EventArgs.DiedEventArgs ev)
         {
             if (playerRagdoll != null)
@@ -203,7 +212,7 @@ namespace SCPSLTranquilizer
         {
             if (ev.Item.Type == ItemType.GunCOM15)
             {
-                ev.Player.Broadcast(new Broadcast($"You picked up the <color=red>tranquilizer</color>", 5, true));
+                ev.Player.Broadcast(new Broadcast($"You picked up the <color=red><b>Tranquilizer</b></color>", 5, true));
             }
         }
         // ________________________________________DISABLING THE PLAYER________________________________________
@@ -212,8 +221,6 @@ namespace SCPSLTranquilizer
         // When someone is shot by the tranquilizer
         private void Player_Shot(Exiled.Events.EventArgs.ShotEventArgs ev)
         {
-            Log.Debug(disabledPlayers.ToArray()); // TODO: Remove debugging
-
             // Get the current weapon instance
             Item weapon = ev.Shooter.CurrentItem;
             
@@ -225,7 +232,10 @@ namespace SCPSLTranquilizer
                 ev.Target.Broadcast(new Broadcast($"You where tranquilized by <color=red>{ev.Shooter.Nickname}</color>!", 3, true));
 
                 // Knock out the target
-                Timing.RunCoroutine(knockout(ev.Target.IsScp, (ev.Target.Role.Type == RoleType.Scp096), ev));
+                if (!disabledPlayers.Contains(ev.Target.UserId))
+                {
+                    Timing.RunCoroutine(knockout(ev.Target.IsScp, (ev.Target.Role.Type == RoleType.Scp096), ev));
+                }
             }
         }
 
@@ -238,8 +248,11 @@ namespace SCPSLTranquilizer
             // Check if the target is an SCP
             if (isSCP)
             {
-                if (is096) // Check if the target is 096
+                if (is096 && Config.pacify096) // Check if the target is 096
                 {
+
+                    // How would I go about calming the timid little fella down?
+
                     // Pacify 096
                     disabledPlayers.Add(ev.Target.UserId);
 
@@ -252,7 +265,7 @@ namespace SCPSLTranquilizer
                 else
                 {
                     // Create the ragdoll
-                    playerRagdoll = new Ragdoll(new RagdollInfo(Server.Host.ReferenceHub, new UniversalDamageHandler(200, DeathTranslations.Unknown), ev.Target.Role.Type, ev.Target.Position + (Vector3.up * 1f), default, "SCP-343", NetworkTime.time), true);
+                    playerRagdoll = new Ragdoll(new RagdollInfo(Server.Host.ReferenceHub, new UniversalDamageHandler(200, DeathTranslations.Poisoned), ev.Target.Role.Type, ev.Target.Position , default, "SCP-343", NetworkTime.time), true);
                     playerRagdoll.Spawn();
 
                     // Disable the player and turn the player invisible (Used for shootable ragdolls)
@@ -279,7 +292,7 @@ namespace SCPSLTranquilizer
             else 
             {
                 // Create the ragdoll
-                playerRagdoll = new Ragdoll(new RagdollInfo(Server.Host.ReferenceHub, new UniversalDamageHandler(200, DeathTranslations.Unknown), ev.Target.Role.Type, ev.Target.Position + (Vector3.up * 1f), default, "SCP-343", NetworkTime.time), true);
+                playerRagdoll = new Ragdoll(new RagdollInfo(Server.Host.ReferenceHub, new UniversalDamageHandler(200, DeathTranslations.Poisoned), ev.Target.Role.Type, ev.Target.Position, default, "SCP-343", NetworkTime.time), true);
                 playerRagdoll.Spawn();
 
                 // Disable the player and turn the player invisible (Used for shootable ragdolls)
