@@ -10,7 +10,6 @@ namespace SCPSLTranquilizer
     using Mirror;
     using PlayerStatsSystem;
     using System.Collections.Generic;
-    using UnityEngine;
     using Item = Exiled.API.Features.Items.Item;
     using Player = Exiled.Events.Handlers.Player;
 
@@ -22,17 +21,33 @@ namespace SCPSLTranquilizer
         public override System.Version Version => new System.Version(1, 3, 2);
 
         public List<string> disabledPlayers = new List<string>();
+        public Dictionary<Item, int> ammo = new Dictionary<Item, int>();
 
         // Create the ragdoll
         Ragdoll? playerRagdoll;
 
         public override void OnDisabled()
         {
-            ;
+            // Unsubscribe to events
+            Player.Shot -= Player_Shot;
+            Player.ItemAdded -= Player_ItemAdded;
+            Player.UsingItem -= Player_UsingItem;
+            Player.InteractingDoor -= Player_InteractingDoor;
+            Player.DroppingItem -= Player_DroppingItem;
+            Player.DroppingAmmo -= Player_DroppingAmmo;
+            Player.Shooting -= Player_Shooting;
+            Player.PickingUpItem -= Player_PickingUpItem;
+            Player.Hurting -= Player_Hurting;
+            Player.Died -= Player_Died;
+            Player.ThrowingItem -= Player_ThrowingItem;
+            Exiled.Events.Handlers.Scp173.Blinking -= Scp173_Blinking;
+            Exiled.Events.Handlers.Scp106.Teleporting -= Scp106_Teleporting;
+            Exiled.Events.Handlers.Scp096.Enraging -= Scp096_Enraging;
         }
 
         public override void OnEnabled()
         {
+            // Subscribe to events
             Player.Shot += Player_Shot;
             Player.ItemAdded += Player_ItemAdded;
             Player.UsingItem += Player_UsingItem;
@@ -44,12 +59,28 @@ namespace SCPSLTranquilizer
             Player.Hurting += Player_Hurting;
             Player.Died += Player_Died;
             Player.ThrowingItem += Player_ThrowingItem;
+            Player.EnteringPocketDimension += Player_EnteringPocketDimension;
             Exiled.Events.Handlers.Scp173.Blinking += Scp173_Blinking;
             Exiled.Events.Handlers.Scp106.Teleporting += Scp106_Teleporting;
             Exiled.Events.Handlers.Scp096.Enraging += Scp096_Enraging;
         }
 
         // ________________________________________DISABLING THE PLAYER________________________________________
+
+        private void Player_EnteringPocketDimension(Exiled.Events.EventArgs.EnteringPocketDimensionEventArgs ev)
+        {
+            if (disabledPlayers.Contains(ev.Scp106.UserId))
+            {
+                ev.IsAllowed = false;
+                ev.Player.ClearBroadcasts();
+                ev.Player.Broadcast(new Broadcast("You <color=red>cannot</color> do anything when <color=red>tranquilized</color>", 3, true));
+            }
+            else
+            {
+                ev.IsAllowed = true;
+            }
+        }
+
         private void Player_ThrowingItem(Exiled.Events.EventArgs.ThrowingItemEventArgs ev)
         {
             if (disabledPlayers.Contains(ev.Player.UserId))
@@ -97,6 +128,21 @@ namespace SCPSLTranquilizer
             else
             {
                 ev.IsAllowed = true;
+                
+                if (ev.Shooter.CurrentItem.Type == ItemType.GunCOM15)
+                {
+                    if (ammo[ev.Shooter.CurrentItem] < 1)
+                    {
+                        ev.Shooter.CurrentItem.Destroy();
+                        ev.Shooter.ShowHint($"<color=red>OUT OF AMMO</color>", 10);
+                    }
+
+                    else
+                    {
+                        ammo[ev.Shooter.CurrentItem] -= 1;
+                        ev.Shooter.ShowHint($"Tranquilizer ammo: <color=red>{ammo[ev.Shooter.CurrentItem]} / {Config.tranquilizerAmmo}</color>", 10);
+                    }
+                }
             };
         }
 
@@ -215,6 +261,8 @@ namespace SCPSLTranquilizer
             if (ev.Item.Type == ItemType.GunCOM15)
             {
                 ev.Player.Broadcast(new Broadcast($"You picked up the <color=red><b>Tranquilizer</b></color>", 5, true));
+                ev.Player.ShowHint($"Tranquilizer ammo: <color=red>{ammo[ev.Item]} / {Config.tranquilizerAmmo}</color>", 10);
+                ammo.Add(ev.Item, Config.tranquilizerAmmo);
             }
         }
         // ________________________________________DISABLING THE PLAYER________________________________________
@@ -271,10 +319,7 @@ namespace SCPSLTranquilizer
         // Corountine to knock out the victims
         // TODO: Dear god
         public IEnumerator<float> knockout(bool isSCP, bool is096, Exiled.Events.EventArgs.ShotEventArgs ev)
-        {
-            // Destroy the tranquilizer (It only has one shot)
-            ev.Shooter.CurrentItem.Destroy();
-
+        { 
             // Check if the target is an SCP
             if (isSCP)
             {
