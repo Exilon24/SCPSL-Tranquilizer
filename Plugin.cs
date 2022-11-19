@@ -289,7 +289,6 @@ namespace SCPSLTranquilizer
             if (ev.Item.Type == ItemType.GunCOM15)
             {
                 Firearm gun = ev.Item as Firearm;
-                gun.Ammo = Config.tranquilizerAmmo;
                 ev.Player.Broadcast(new Broadcast($"You picked up the <color=red><b>Tranquilizer</b></color>", 5, true));
             }
         }
