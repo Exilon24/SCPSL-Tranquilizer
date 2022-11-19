@@ -12,6 +12,7 @@ namespace SCPSLTranquilizer
     using Item = Exiled.API.Features.Items.Item;
     using Player = Exiled.Events.Handlers.Player;
     using Firearm = Exiled.API.Features.Items.Firearm;
+    using System;
 
     public class Plugin : Plugin<Config>
     {
@@ -48,6 +49,7 @@ namespace SCPSLTranquilizer
         {
             // Subscribe to events
             Player.Shot += Player_Shot;
+            Player.
             Player.ItemAdded += Player_ItemAdded;
             Player.UsingItem += Player_UsingItem;
             Player.InteractingDoor += Player_InteractingDoor;
@@ -85,7 +87,7 @@ namespace SCPSLTranquilizer
             {
                 ev.IsAllowed = false;
                 ev.Player.ClearBroadcasts();
-                ev.Player.Broadcast(new Broadcast("You <color=red>cannot</color> do anything when <color=red>tranquilized</color>", 3, true));
+                ev.Scp106.Broadcast(new Broadcast("You <color=red>cannot</color> do anything when <color=red>tranquilized</color>", 3, true));
             }
             else
             {
@@ -144,17 +146,12 @@ namespace SCPSLTranquilizer
                 if (ev.Shooter.CurrentItem.Type == ItemType.GunCOM15)
                 {
                     Firearm gun = ev.Shooter.CurrentItem as Firearm;
-                    ev.Shooter.ShowHint($"Tranquilizer ammo: <color=red>{gun.Ammo} / {Config.tranquilizerAmmo}</color>", 10);
+                    ev.Shooter.ShowHint($"<color=red>{gun.Ammo} / {Config.tranquilizerAmmo}</color>", 10);
 
                     if (gun.Ammo < 1)
                     {
                         ev.Shooter.CurrentItem.Destroy();
                         ev.Shooter.ShowHint($"<color=red>OUT OF AMMO</color>", 10);
-                    }
-
-                    else
-                    {
-                        ev.Shooter.ShowHint($"Tranquilizer ammo: <color=red>{gun.Ammo} / {Config.tranquilizerAmmo}</color>", 10);
                     }
                 }
             };
@@ -275,9 +272,8 @@ namespace SCPSLTranquilizer
             if (ev.Item.Type == ItemType.GunCOM15)
             {
                 Firearm gun = ev.Item as Firearm;
-                gun.Ammo = (byte)Config.tranquilizerAmmo;
+                gun.Ammo = Config.tranquilizerAmmo;
                 ev.Player.Broadcast(new Broadcast($"You picked up the <color=red><b>Tranquilizer</b></color>", 5, true));
-                ev.Player.Broadcast(new Broadcast($"Tranquilizer ammo: <color=red>{gun.Ammo} / {Config.tranquilizerAmmo}</color>", 10, true));
             }
         }
         // ________________________________________DISABLING THE PLAYER________________________________________
