@@ -1,5 +1,4 @@
 ﻿// TODO:
-// Ammo system
 // #include <iostream>
 
 namespace SCPSLTranquilizer
