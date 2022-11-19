@@ -49,7 +49,7 @@ namespace SCPSLTranquilizer
         {
             // Subscribe to events
             Player.Shot += Player_Shot;
-            Player.
+            Player.ChangingItem += Player_ChangingItem;
             Player.ItemAdded += Player_ItemAdded;
             Player.UsingItem += Player_UsingItem;
             Player.InteractingDoor += Player_InteractingDoor;
@@ -67,7 +67,24 @@ namespace SCPSLTranquilizer
             Exiled.Events.Handlers.Scp096.Enraging += Scp096_Enraging;
         }
 
+
+
         // ________________________________________DISABLING THE PLAYER________________________________________
+
+        private void Player_ChangingItem(Exiled.Events.EventArgs.ChangingItemEventArgs ev)
+        {
+            if (ev.NewItem.Type == ItemType.GunCOM15)
+            {
+                Firearm gun = ev.NewItem as Firearm;
+
+                if (gun.Ammo > Config.tranquilizerAmmo)
+                {
+                    gun.Ammo = Config.tranquilizerAmmo;
+                }
+
+                ev.Player.ShowHint($"<color=red>{gun.Ammo} / {Config.tranquilizerAmmo}</color>", 10);
+            }
+        }
 
         private void Player_ReloadingWeapon(Exiled.Events.EventArgs.ReloadingWeaponEventArgs ev)
         {
@@ -87,7 +104,7 @@ namespace SCPSLTranquilizer
             {
                 ev.IsAllowed = false;
                 ev.Player.ClearBroadcasts();
-                ev.Scp106.Broadcast(new Broadcast("You <color=red>cannot</color> do anything when <color=red>tranquilized</color>", 3, true));
+                ev.Scp106.ShowHint($"<color=red>Tranquilized</color>", 2);
             }
             else
             {
@@ -101,7 +118,7 @@ namespace SCPSLTranquilizer
             {
                 ev.IsAllowed = false;
                 ev.Player.ClearBroadcasts();
-                ev.Player.Broadcast(new Broadcast("You <color=red>cannot</color> do anything when <color=red>tranquilized</color>", 3, true));
+                ev.Player.ShowHint($"<color=red>Tranquilized</color>", 2);
             }
             else
             {
@@ -123,7 +140,7 @@ namespace SCPSLTranquilizer
             {
                 ev.IsAllowed = false;
                 ev.Attacker.ClearBroadcasts();
-                ev.Attacker.Broadcast(new Broadcast("You <color=red>cannot</color> do anything when <color=red>tranquilized</color>", 3, true));
+                ev.Attacker.ShowHint($"<color=red>Tranquilized</color>", 2);
             }
             else
             {
@@ -136,7 +153,7 @@ namespace SCPSLTranquilizer
             if (disabledPlayers.Contains(ev.Shooter.UserId))
             {
                 ev.Shooter.ClearBroadcasts();
-                ev.Shooter.Broadcast(new Broadcast("You <color=red>cannot</color> do anything when <color=red>tranquilized</color>", 3, true));
+                ev.Shooter.ShowHint($"<color=red>Tranquilized</color>", 2);
                 ev.IsAllowed = false;
             }
             else
@@ -162,7 +179,7 @@ namespace SCPSLTranquilizer
             if (disabledPlayers.Contains(ev.Player.UserId))
             {
                 ev.Player.ClearBroadcasts();
-                ev.Player.Broadcast(new Broadcast("You <color=red>cannot</color> do anything when <color=red>tranquilized</color>", 3, true));
+                ev.Player.ShowHint($"<color=red>Tranquilized</color>", 2);
                 ev.IsAllowed = false;
             }
             else
@@ -176,7 +193,7 @@ namespace SCPSLTranquilizer
             if (disabledPlayers.Contains(ev.Player.UserId))
             {
                 ev.Player.ClearBroadcasts();
-                ev.Player.Broadcast(new Broadcast("You <color=red>cannot</color> do anything when <color=red>tranquilized</color>", 3, true));
+                ev.Player.ShowHint($"<color=red>Tranquilized</color>", 2);
                 ev.IsAllowed = false;
             }
             else
@@ -190,7 +207,7 @@ namespace SCPSLTranquilizer
             if (disabledPlayers.Contains(ev.Player.UserId))
             {
                 ev.Player.ClearBroadcasts();
-                ev.Player.Broadcast(new Broadcast("You <color=red>cannot</color> do anything when <color=red>tranquilized</color>", 3, true));
+                ev.Player.ShowHint($"<color=red>Tranquilized</color>", 2);
                 ev.IsAllowed = false;
             }
             else
@@ -204,7 +221,7 @@ namespace SCPSLTranquilizer
             if (disabledPlayers.Contains(ev.Player.UserId))
             {
                 ev.Player.ClearBroadcasts();
-                ev.Player.Broadcast(new Broadcast("You <color=red>cannot</color> do anything when <color=red>tranquilized</color>", 3, true));
+                ev.Player.ShowHint($"<color=red>Tranquilized</color>", 2);
                 ev.IsAllowed = false;
             }
             else
@@ -218,7 +235,7 @@ namespace SCPSLTranquilizer
             if (disabledPlayers.Contains(ev.Player.UserId))
             {
                 ev.Player.ClearBroadcasts();
-                ev.Player.Broadcast(new Broadcast("You <color=red>cannot</color> do anything when <color=red>tranquilized</color>", 3, true));
+                ev.Player.ShowHint($"<color=red>Tranquilized</color>", 2);
                 ev.IsAllowed = false;
             }
             else
@@ -232,7 +249,7 @@ namespace SCPSLTranquilizer
             if (disabledPlayers.Contains(ev.Player.UserId))
             {
                 ev.Player.ClearBroadcasts();
-                ev.Player.Broadcast(new Broadcast("You <color=red>cannot</color> do anything when <color=red>tranquilized</color>", 3, true));
+                ev.Player.ShowHint($"<color=red>Tranquilized</color>", 2);
                 ev.IsAllowed = false;
             }
             else
@@ -246,7 +263,7 @@ namespace SCPSLTranquilizer
             if (disabledPlayers.Contains(ev.Player.UserId))
             {
                 ev.Player.ClearBroadcasts();
-                ev.Player.Broadcast(new Broadcast("You <color=red>cannot</color> do anything when <color=red>tranquilized</color>", 3, true));
+                ev.Player.ShowHint($"<color=red>Tranquilized</color>", 2);
                 ev.IsAllowed = false;
             }
             else
