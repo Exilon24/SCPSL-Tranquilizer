@@ -4,6 +4,7 @@
 namespace SCPSLTranquilizer
 {
     using Exiled.API.Features;
+    using Exiled.API.Features.Roles;
     using MEC;
     using Mirror;
     using PlayerStatsSystem;
@@ -240,6 +241,7 @@ namespace SCPSLTranquilizer
         }
 
         // Corountine to knock out the victims
+        // TODO: Dear god
         public IEnumerator<float> knockout(bool isSCP, bool is096, Exiled.Events.EventArgs.ShotEventArgs ev)
         {
             // Destroy the tranquilizer (It only has one shot)
@@ -248,19 +250,58 @@ namespace SCPSLTranquilizer
             // Check if the target is an SCP
             if (isSCP)
             {
-                if (is096 && Config.pacify096) // Check if the target is 096
+                if (is096) // Check if the target is 096
                 {
-
-                    // How would I go about calming the timid little fella down?
+                    // calming the timid little fella down
+                    Scp096Role? role = ev.Target.Role as Scp096Role;
+                    if (role != null)
+                    {
+                        if (role.IsEnraged && Config.pacify096)
+                        {
+                            role.Script.EndEnrage();
+                        }
+                    }
 
                     // Pacify 096
-                    disabledPlayers.Add(ev.Target.UserId);
+                    if (Config.pacify096)
+                    {
+                        // Pacify 096
+                        disabledPlayers.Add(ev.Target.UserId);
 
-                    // Pacify timing
-                    yield return Timing.WaitForSeconds((float)Config.SCPKnockoutTime);
+                        // Pacify timing
+                        yield return Timing.WaitForSeconds((float)Config.SCPKnockoutTime);
 
-                    // Return 096
-                    disabledPlayers.Remove(ev.Target.UserId);
+                        // Return 096
+                        disabledPlayers.Remove(ev.Target.UserId);
+                    }
+
+                    // treat him normally
+                    else 
+                    {
+                        // Create the ragdoll
+                        playerRagdoll = new Ragdoll(new RagdollInfo(Server.Host.ReferenceHub, new UniversalDamageHandler(200, DeathTranslations.Poisoned), ev.Target.Role.Type, ev.Target.Position, default, "SCP-343", NetworkTime.time), true);
+                        playerRagdoll.Spawn();
+
+                        // Disable the player and turn the player invisible (Used for shootable ragdolls)
+                        ev.Target.CanSendInputs = false;
+                        ev.Target.IsInvisible = true;
+                        disabledPlayers.Add(ev.Target.UserId);
+
+                        // Blind and deafen the target
+                        ev.Target.EnableEffect(Exiled.API.Enums.EffectType.Blinded, (float)Config.SCPKnockoutTime);
+                        ev.Target.EnableEffect(Exiled.API.Enums.EffectType.Deafened, (float)Config.SCPKnockoutTime);
+
+                        // Tranquilized time
+                        yield return Timing.WaitForSeconds((float)Config.SCPKnockoutTime);
+
+                        // Enable the player
+                        disabledPlayers.Remove(ev.Target.UserId);
+                        ev.Target.CanSendInputs = true;
+                        ev.Target.IsInvisible = false;
+
+                        // Destroy the ragdoll
+                        playerRagdoll.Delete();
+                    }
                 }
                 else
                 {
