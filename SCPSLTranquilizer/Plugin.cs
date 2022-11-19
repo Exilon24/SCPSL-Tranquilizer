@@ -243,7 +243,7 @@ namespace SCPSLTranquilizer
         // Here to make the effect a little neater
         public IEnumerator<float> knockoutEffect(Exiled.Events.EventArgs.ShotEventArgs ev)
         {
-            playerRagdoll = new Ragdoll(new RagdollInfo(Server.Host.ReferenceHub, new UniversalDamageHandler(200, DeathTranslations.Poisoned), ev.Target.Role.Type, ev.Target.Position, default, "SCP-343", NetworkTime.time), true);
+            playerRagdoll = new Ragdoll(new RagdollInfo(Server.Host.ReferenceHub, new UniversalDamageHandler(200, DeathTranslations.Unknown), ev.Target.Role.Type, ev.Target.Position, default, "SCP-343", NetworkTime.time), true);
             playerRagdoll.Spawn();
 
             // Disable the player and turn the player invisible (Used for shootable ragdolls)
@@ -252,11 +252,11 @@ namespace SCPSLTranquilizer
             disabledPlayers.Add(ev.Target.UserId);
 
             // Blind and deafen the target
-            ev.Target.EnableEffect(Exiled.API.Enums.EffectType.Blinded, (float)Config.SCPKnockoutTime);
-            ev.Target.EnableEffect(Exiled.API.Enums.EffectType.Deafened, (float)Config.SCPKnockoutTime);
+            ev.Target.EnableEffect(Exiled.API.Enums.EffectType.Blinded, ev.Target.IsScp ? Config.SCPKnockoutTime : Config.HumanKnockoutTime);
+            ev.Target.EnableEffect(Exiled.API.Enums.EffectType.Deafened, ev.Target.IsScp ? Config.SCPKnockoutTime : Config.HumanKnockoutTime);
 
             // Tranquilized time
-            yield return Timing.WaitForSeconds((float)Config.SCPKnockoutTime);
+            yield return Timing.WaitForSeconds(ev.Target.IsScp ? Config.SCPKnockoutTime : Config.HumanKnockoutTime);
 
             // Enable the player
             disabledPlayers.Remove(ev.Target.UserId);
