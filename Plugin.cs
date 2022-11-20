@@ -258,11 +258,6 @@ namespace SCPSLTranquilizer
         // Here to make the effect a little neater
         public IEnumerator<float> knockoutEffect(Exiled.Events.EventArgs.ShotEventArgs ev, Scp096Role role)
         {
-            if (ev.Target.Role.Type == RoleType.Scp096)
-            {
-                role = ev.Target.Role as Scp096Role;
-            }
-
             playerRagdoll = new Ragdoll(new RagdollInfo(Server.Host.ReferenceHub, new UniversalDamageHandler(200, DeathTranslations.Unknown), ev.Target.Role.Type, ev.Target.Position, default, ev.Target.DisplayNickname, NetworkTime.time), true);
             playerRagdoll.Spawn();
 
@@ -280,8 +275,14 @@ namespace SCPSLTranquilizer
             yield return Timing.WaitForSeconds(ev.Target.IsScp ? Config.SCPKnockoutTime : Config.HumanKnockoutTime);
 
             // Enable the player
+
+            if (ev.Target.Role.Type == RoleType.Scp096)
+            {
+                role = ev.Target.Role as Scp096Role;
+                role.Script.EnrageTimeLeft = 0f;
+            }
+
             disabledPlayers.Remove(ev.Target.UserId);
-            role.Script.EnrageTimeLeft = 0f;
             ev.Target.CanSendInputs = true;
             ev.Target.IsInvisible = false;
 
