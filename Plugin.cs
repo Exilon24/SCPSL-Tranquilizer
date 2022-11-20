@@ -21,7 +21,7 @@ namespace SCPSLTranquilizer
         public override string Author => "(S)Exilon";
         public override System.Version Version => new System.Version(1, 3, 2);
 
-        public List<string> disabledPlayers = new List<string>();
+        public static List<string> disabledPlayers = new List<string>();
 
         // Create the ragdoll
         Ragdoll playerRagdoll;
@@ -42,7 +42,6 @@ namespace SCPSLTranquilizer
             Player.ThrowingItem -= Player_ThrowingItem;
             Exiled.Events.Handlers.Scp173.Blinking -= Scp173_Blinking;
             Exiled.Events.Handlers.Scp106.Teleporting -= Scp106_Teleporting;
-            Exiled.Events.Handlers.Scp096.Enraging -= Scp096_Enraging;
         }
 
         public override void OnEnabled()
@@ -64,10 +63,8 @@ namespace SCPSLTranquilizer
             Player.EnteringPocketDimension += Player_EnteringPocketDimension;
             Exiled.Events.Handlers.Scp173.Blinking += Scp173_Blinking;
             Exiled.Events.Handlers.Scp106.Teleporting += Scp106_Teleporting;
-            Exiled.Events.Handlers.Scp096.Enraging += Scp096_Enraging;
-            Exiled.Events.Handlers.Scp096.AddingTarget += Scp096_AddingTarget;
-        }
 
+        }
         // ________________________________________DISABLING THE PLAYER________________________________________
 
         private void Player_ChangingItem(Exiled.Events.EventArgs.ChangingItemEventArgs ev)
@@ -91,10 +88,6 @@ namespace SCPSLTranquilizer
             {
                 ev.IsAllowed = false;
             }
-            else
-            {
-                ev.IsAllowed = true;
-            }
         }
 
         private void Player_EnteringPocketDimension(Exiled.Events.EventArgs.EnteringPocketDimensionEventArgs ev)
@@ -105,10 +98,6 @@ namespace SCPSLTranquilizer
                 ev.Player.ClearBroadcasts();
                 ev.Scp106.ShowHint($"<color=red>Tranquilized</color>", 2);
             }
-            else
-            {
-                ev.IsAllowed = true;
-            }
         }
 
         private void Player_ThrowingItem(Exiled.Events.EventArgs.ThrowingItemEventArgs ev)
@@ -118,10 +107,6 @@ namespace SCPSLTranquilizer
                 ev.IsAllowed = false;
                 ev.Player.ClearBroadcasts();
                 ev.Player.ShowHint($"<color=red>Tranquilized</color>", 2);
-            }
-            else
-            {
-                ev.IsAllowed = true;
             }
         }
 
@@ -141,10 +126,6 @@ namespace SCPSLTranquilizer
                 ev.Attacker.ClearBroadcasts();
                 ev.Attacker.ShowHint($"<color=red>Tranquilized</color>", 2);
             }
-            else
-            {
-                ev.IsAllowed = true;
-            }
         }
 
         private void Player_Shooting(Exiled.Events.EventArgs.ShootingEventArgs ev)
@@ -157,7 +138,6 @@ namespace SCPSLTranquilizer
             }
             else
             {
-                ev.IsAllowed = true;
 
                 if (ev.Shooter.CurrentItem.Type == ItemType.GunCOM15)
                 {
@@ -180,10 +160,6 @@ namespace SCPSLTranquilizer
                 ev.Player.ShowHint($"<color=red>Tranquilized</color>", 2);
                 ev.IsAllowed = false;
             }
-            else
-            {
-                ev.IsAllowed = true;
-            }
         }
 
         private void Scp173_Blinking(Exiled.Events.EventArgs.BlinkingEventArgs ev)
@@ -193,10 +169,6 @@ namespace SCPSLTranquilizer
                 ev.Player.ClearBroadcasts();
                 ev.Player.ShowHint($"<color=red>Tranquilized</color>", 2);
                 ev.IsAllowed = false;
-            }
-            else
-            {
-                ev.IsAllowed = true;
             }
         }
 
@@ -208,10 +180,6 @@ namespace SCPSLTranquilizer
                 ev.Player.ShowHint($"<color=red>Tranquilized</color>", 2);
                 ev.IsAllowed = false;
             }
-            else
-            {
-                ev.IsAllowed = true;
-            };
         }
 
         private void Player_DroppingAmmo(Exiled.Events.EventArgs.DroppingAmmoEventArgs ev)
@@ -221,10 +189,6 @@ namespace SCPSLTranquilizer
                 ev.Player.ClearBroadcasts();
                 ev.Player.ShowHint($"<color=red>Tranquilized</color>", 2);
                 ev.IsAllowed = false;
-            }
-            else
-            {
-                ev.IsAllowed = true;
             }
         }
 
@@ -236,10 +200,6 @@ namespace SCPSLTranquilizer
                 ev.Player.ShowHint($"<color=red>Tranquilized</color>", 2);
                 ev.IsAllowed = false;
             }
-            else
-            {
-                ev.IsAllowed = true;
-            }
         }
 
         private void Player_InteractingDoor(Exiled.Events.EventArgs.InteractingDoorEventArgs ev)
@@ -249,10 +209,6 @@ namespace SCPSLTranquilizer
                 ev.Player.ClearBroadcasts();
                 ev.Player.ShowHint($"<color=red>Tranquilized</color>", 2);
                 ev.IsAllowed = false;
-            }
-            else
-            {
-                ev.IsAllowed = true;
             }
         }
 
@@ -264,35 +220,8 @@ namespace SCPSLTranquilizer
                 ev.Player.ShowHint($"<color=red>Tranquilized</color>", 2);
                 ev.IsAllowed = false;
             }
-            else
-            {
-                ev.IsAllowed = true;
-            }
         }
 
-        private void Scp096_Enraging(Exiled.Events.EventArgs.EnragingEventArgs ev)
-        {
-            if (disabledPlayers.Contains(ev.Player.UserId) && !ev.Scp096.Enraged)
-            {
-                ev.IsAllowed = false;
-            }
-            else
-            {
-                ev.IsAllowed = true;
-            }
-        }
-
-        private void Scp096_AddingTarget(Exiled.Events.EventArgs.AddingTargetEventArgs ev)
-        {
-            if (disabledPlayers.Contains(ev.Scp096.UserId))
-            {
-                ev.IsAllowed = false;
-            }
-            else
-            {
-                ev.IsAllowed = true;
-            }
-        }
 
         private void Player_ItemAdded(Exiled.Events.EventArgs.ItemAddedEventArgs ev)
         {
@@ -373,9 +302,9 @@ namespace SCPSLTranquilizer
                     Scp096Role role = ev.Target.Role as Scp096Role;
                     if (role != null)
                     {
-                        if (role.Script.EnragedOrEnraging && Config.pacify096)
+                        if (role.Script.Enraged && Config.pacify096)
                         {
-                            role.Script.PlayerState = PlayableScps.Scp096PlayerState.Calming;
+                            role.Script.EnrageTimeLeft = 0f;
                             role.Script.UpdateEnrage();
 
                         }
