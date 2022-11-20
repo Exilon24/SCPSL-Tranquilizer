@@ -1,4 +1,4 @@
-﻿namespace SCPSLTranquilizer
+﻿namespace Tranquilizer
 {
     using Exiled.API.Interfaces;
 

@@ -1,11 +1,12 @@
 ﻿// TODO:
 // #include <iostream>
 
-namespace SCPSLTranquilizer
+namespace Tranquilizer
 {
     using Exiled.API.Features;
     using Exiled.API.Features.Roles;
     using MEC;
+    using HarmonyLib;
     using Mirror;
     using PlayerStatsSystem;
     using System.Collections.Generic;
@@ -23,11 +24,16 @@ namespace SCPSLTranquilizer
 
         public static List<string> disabledPlayers = new List<string>();
 
+        Harmony scp096patch = new Harmony("Scp096Patch");
+
+
         // Create the ragdoll
         Ragdoll playerRagdoll;
 
         public override void OnDisabled()
         {
+            scp096patch.UnpatchAll("Scp096Patch");
+
             // Unsubscribe to events
             Player.Shot -= Player_Shot;
             Player.ItemAdded -= Player_ItemAdded;
@@ -46,6 +52,8 @@ namespace SCPSLTranquilizer
 
         public override void OnEnabled()
         {
+            scp096patch.PatchAll();
+
             // Subscribe to events
             Player.Shot += Player_Shot;
             Player.ChangingItem += Player_ChangingItem;
