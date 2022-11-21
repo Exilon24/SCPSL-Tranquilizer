@@ -283,13 +283,6 @@ namespace Tranquilizer
             yield return Timing.WaitForSeconds(ev.Target.IsScp ? Config.SCPKnockoutTime : Config.HumanKnockoutTime);
 
             // Enable the player
-
-            if (ev.Target.Role.Type == RoleType.Scp096)
-            {
-                role = ev.Target.Role as Scp096Role;
-                role.Script.EnrageTimeLeft = 0f;
-            }
-
             disabledPlayers.Remove(ev.Target.UserId);
             ev.Target.CanSendInputs = true;
             ev.Target.IsInvisible = false;
@@ -314,7 +307,6 @@ namespace Tranquilizer
                         if (role.Script.Enraged && Config.pacify096)
                         {
                             role.Script.EnrageTimeLeft = 0f;
-                            role.Script.UpdateEnrage();
 
                         }
                         // treat him normally

@@ -3,18 +3,17 @@ using PlayableScps;
 using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
-
-
-
+using Exiled.API.Features;
 
 namespace Tranquilizer
 {
-    [HarmonyPatch(typeof(Scp096), nameof(Scp096.UpdateVision))]
-    public class UpdateVisionPatch
+    [HarmonyPatch(typeof(PlayableScps.Scp096), nameof(PlayableScps.Scp096.UpdateVision))]
+    public static class UpdateVisionPatch
     {
-        public static bool Prefix(Scp096 __instance)
-        {    
-            Vector3 vector = __instance.Hub.transform.TransformPoint(Scp096._headOffset);
+        public static bool Prefix(PlayableScps.Scp096 __instance)
+        {
+            Log.Debug("Running patched method");
+            Vector3 vector = __instance.Hub.transform.TransformPoint(PlayableScps.Scp096._headOffset);
             foreach (KeyValuePair<GameObject, global::ReferenceHub> keyValuePair in global::ReferenceHub.GetAllHubs())
             {
                 global::ReferenceHub value = keyValuePair.Value;
@@ -25,8 +24,9 @@ namespace Tranquilizer
                     if (visionInformation.IsLooking)
                     {
                         float delay = visionInformation.LookingAmount / 0.25f * (visionInformation.Distance * 0.1f);
-                        if (!Tranquilizer.Plugin.disabledPlayers.Contains(Exiled.API.Features.Player.Get(__instance.Hub).UserId))
+                        if (!(Plugin.disabledPlayers.Contains(Player.Get(__instance.Hub).UserId)))
                         {
+                            Log.Debug("BRO AINT ASLEEP");
                             if (!__instance.Calming)
                             {
                                 __instance.AddTarget(value.gameObject);
@@ -36,6 +36,11 @@ namespace Tranquilizer
                                 __instance.PreWindup(delay);
                             }
                         }
+                        else
+                        {
+                            Log.Debug("He sleeping bro");
+                            return false;
+                        }
                     }
                 }
             }
@@ -44,3 +49,4 @@ namespace Tranquilizer
         }
     }
 }
+
