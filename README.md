@@ -20,6 +20,16 @@ Remade the tranquilizer mod for SCP:SL (The old one was broken)
 * Replace every COM15 with a tranquilizer
 * Calm down 096
 
+# Examples
+
+*Player being tranquilized*
+
+![Eg1](https://user-images.githubusercontent.com/80382462/203331902-c259ee58-f25c-42ce-8b84-059f16b5deba.gif)
+
+*Their POV*
+
+![Eg2](https://user-images.githubusercontent.com/80382462/203333126-d82d2fc3-c514-4914-bc59-ad2641cb14cc.gif)
+
 # Installation
 Place the `.dll` in your `Exiled/Plugins` directory:
 * [Linux](https://github.com/Exiled-Team/EXILED#installing-plugins-1)
