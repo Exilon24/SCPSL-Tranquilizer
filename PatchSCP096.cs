@@ -4,6 +4,24 @@ using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
 using Exiled.API.Features;
+using Exiled.API.Features.DamageHandlers;
+using Interactables.Interobjects;
+using Interactables.Interobjects.DoorUtils;
+using InventorySystem.Items.Usables.Scp244.Hypothermia;
+using MEC;
+using Mirror;
+using NorthwoodLib.Pools;
+using PlayableScps.Abilities;
+using PlayableScps.Interfaces;
+using PlayableScps.Messages;
+using PlayerStatsSystem;
+using RemoteAdmin;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Targeting;
+using UnityEngine;
+using Utils.Networking;
 
 namespace Tranquilizer
 {
@@ -43,6 +61,30 @@ namespace Tranquilizer
             }
 
             return false;
+        }
+    }
+
+    [HarmonyPatch(typeof(PlayableScps.Scp096), nameof(PlayableScps.Scp096.OnDamage))]
+    public static class patchScp096OnShot
+    {
+        public static bool Prefix(PlayableScps.Scp096 __instance, PlayerStatsSystem.DamageHandlerBase handler)
+        {
+            PlayerStatsSystem.AttackerDamageHandler attackerDamageHandler;
+            if ((attackerDamageHandler = (handler as PlayerStatsSystem.AttackerDamageHandler)) != null && attackerDamageHandler.Attacker.Hub != null && __instance.CanEnrage)
+            {
+                if (!((Player.Get(attackerDamageHandler.Attacker.Hub)).CurrentItem.Type == ItemType.GunCOM15))
+                {
+                    __instance.AddTarget(attackerDamageHandler.Attacker.Hub.gameObject);
+                }
+
+                else
+                {
+                    return false;
+                }
+            }
+
+            __instance.Shield.SustainTime = 25f;
+            return true;
         }
     }
 }
